@@ -6,6 +6,10 @@ set -e
 
 INSTALL_DIR="/opt/servmon"
 SERVICE_NAME="servmon-agent"
+REPO_RAW_URL="${REPO_RAW_URL:-https://raw.githubusercontent.com/007angel/Colector/main}"
+AGENT_SCRIPT_NAME="${AGENT_SCRIPT_NAME:-sermos.sh}"
+AGENT_INSTALL_PATH="$INSTALL_DIR/servmon.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -30,7 +34,7 @@ detect_os() {
         OS=$ID
         VERSION=$VERSION_ID
     else
-        error "No se puede detectar el sistema operativo"
+        error "No se puede detectar el sistema operativo distitno. Asegúrate de que /etc/os-release exista."
     fi
     log "Sistema detectado: $OS $VERSION"
 }
@@ -41,7 +45,7 @@ install_dependencies() {
     case $OS in
         debian|ubuntu)
             apt-get update -qq
-            apt-get install -y -qq curl bc ss util-linux coreutils procps findutils
+            apt-get install -y -qq curl bc iproute2 util-linux coreutils procps findutils
             ;;
         centos|rhel|rocky|almalinux|fedora)
             if command -v dnf &> /dev/null; then
@@ -70,15 +74,19 @@ create_directories() {
 
 install_files() {
     log "Instalando archivos..."
-    
+
     # Copiar script principal desde el repositorio si está disponible
-    if [[ -f "$(dirname "$0")/sermos.sh" ]]; then
-        cp "$(dirname "$0")/sermos.sh" "$INSTALL_DIR/servmon.sh"
+    if [[ -f "$SCRIPT_DIR/$AGENT_SCRIPT_NAME" ]]; then
+        log "Copiando $AGENT_SCRIPT_NAME desde $SCRIPT_DIR"
+        cp "$SCRIPT_DIR/$AGENT_SCRIPT_NAME" "$AGENT_INSTALL_PATH"
     else
-        error "No se encontró serMons.sh en el mismo directorio del instalador"
+        log "Descargando $AGENT_SCRIPT_NAME desde $REPO_RAW_URL"
+        if ! curl -fsSL "$REPO_RAW_URL/$AGENT_SCRIPT_NAME" -o "$AGENT_INSTALL_PATH"; then
+            error "No se pudo descargar $AGENT_SCRIPT_NAME desde $REPO_RAW_URL"
+        fi
     fi
-    
-    chmod +x "$INSTALL_DIR/servmon.sh"
+
+    chmod +x "$AGENT_INSTALL_PATH"
     
     # Crear config por defecto
     cat > "$INSTALL_DIR/config.ini" <<EOF
