@@ -1,0 +1,17 @@
+{
+  "name": "servmon-colector",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Colector Linux de metricas y API receptora ServMon",
+  "main": "server.js",
+  "scripts": {
+    "test": "bash tests/run.sh",
+    "test:agent": "bash tests/agent.test.sh",
+    "test:api": "node --test tests/server.test.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.12.0"
+  }
+}

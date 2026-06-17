@@ -1,0 +1,14 @@
+# Ver estado
+sudo systemctl status servmon-agent
+
+# Reiniciar
+sudo systemctl restart servmon-agent
+
+# Ver logs en tiempo real
+sudo journalctl -u servmon-agent -f
+
+# Ver métricas locales
+sudo tail -f /var/log/servmon-metrics-$(date +%Y%m%d).json
+
+# Desinstalar
+sudo /opt/servmon/install.sh --uninstall

@@ -1,0 +1,74 @@
+{
+  "timestamp": "2026-06-15T22:00:00Z",
+  "system": {
+    "hostname": "linux-test-01",
+    "os": "Ubuntu 24.04 LTS",
+    "kernel": "6.8.0-test",
+    "arch": "x86_64"
+  },
+  "network": {
+    "public": "203.0.113.10",
+    "private": "10.0.0.15"
+  },
+  "cpu": {
+    "usage_percent": 42.5,
+    "info": {
+      "model": "Test CPU",
+      "cores": 4,
+      "load_avg": 1.25
+    }
+  },
+  "memory": {
+    "total_mb": 8192,
+    "used_mb": 4096,
+    "free_mb": 4096,
+    "usage_percent": 50
+  },
+  "disk": {
+    "root": {
+      "total_mb": 102400,
+      "used_mb": 51200,
+      "available_mb": 51200,
+      "usage_percent": 50
+    },
+    "all_mounts": [
+      {
+        "mount": "/",
+        "size": "100G",
+        "used": "50G",
+        "available": "50G",
+        "percent": 50
+      }
+    ]
+  },
+  "saturation": {
+    "load_1min": 1.25,
+    "load_5min": 1.1,
+    "load_15min": 0.9,
+    "cores": 4,
+    "saturation_percent": 31.25
+  },
+  "heavy_files": [
+    {
+      "path": "/var/log/big.log",
+      "size": "150M"
+    }
+  ],
+  "uptime_days": 12,
+  "open_ports": [
+    {
+      "port": 22,
+      "protocol": "tcp",
+      "service": "tcp"
+    }
+  ],
+  "top_processes": [
+    {
+      "pid": 1234,
+      "user": "root",
+      "cpu": 7.5,
+      "mem": 3.2,
+      "command": "node"
+    }
+  ]
+}

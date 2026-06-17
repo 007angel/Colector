@@ -1,0 +1,105 @@
+-- Tabla principal de métricas
+CREATE TABLE server_metrics (
+    id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    hostname VARCHAR(255) NOT NULL,
+    ip_public VARCHAR(50),
+    ip_private VARCHAR(50),
+    os VARCHAR(100),
+    kernel VARCHAR(100),
+    arch VARCHAR(20),
+    
+    -- CPU
+    cpu_usage_percent DECIMAL(5,2),
+    cpu_cores INT,
+    cpu_model TEXT,
+    cpu_load_avg DECIMAL(10,2),
+    
+    -- Memoria
+    mem_total_mb INT,
+    mem_used_mb INT,
+    mem_free_mb INT,
+    mem_usage_percent DECIMAL(5,2),
+    
+    -- Disco
+    disk_total_mb BIGINT,
+    disk_used_mb BIGINT,
+    disk_available_mb BIGINT,
+    disk_usage_percent DECIMAL(5,2),
+    
+    -- Saturación
+    load_1min DECIMAL(10,2),
+    load_5min DECIMAL(10,2),
+    load_15min DECIMAL(10,2),
+    saturation_percent DECIMAL(5,2),
+    
+    -- Uptime
+    uptime_days INT,
+    
+    -- Metadata
+    raw_data JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Índices para consultas rápidas
+CREATE INDEX idx_metrics_hostname ON server_metrics(hostname);
+CREATE INDEX idx_metrics_timestamp ON server_metrics(timestamp DESC);
+CREATE INDEX idx_metrics_ip ON server_metrics(ip_private);
+
+-- Tabla de archivos pesados
+CREATE TABLE heavy_files (
+    id SERIAL PRIMARY KEY,
+    metric_id INT REFERENCES server_metrics(id),
+    file_path TEXT,
+    file_size VARCHAR(50),
+    discovered_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Tabla de puertos abiertos
+CREATE TABLE open_ports (
+    id SERIAL PRIMARY KEY,
+    metric_id INT REFERENCES server_metrics(id),
+    port_number INT,
+    protocol VARCHAR(10),
+    service_name VARCHAR(100),
+    discovered_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Tabla de procesos top
+CREATE TABLE top_processes (
+    id SERIAL PRIMARY KEY,
+    metric_id INT REFERENCES server_metrics(id),
+    pid INT,
+    username VARCHAR(100),
+    cpu_percent DECIMAL(5,2),
+    mem_percent DECIMAL(5,2),
+    command TEXT,
+    captured_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Vista para dashboard
+CREATE VIEW server_health_summary AS
+SELECT 
+    hostname,
+    ip_private,
+    cpu_usage_percent,
+    mem_usage_percent,
+    disk_usage_percent,
+    saturation_percent,
+    uptime_days,
+    timestamp,
+    CASE 
+        WHEN cpu_usage_percent > 90 OR mem_usage_percent > 90 OR disk_usage_percent > 90 THEN 'CRITICAL'
+        WHEN cpu_usage_percent > 70 OR mem_usage_percent > 70 OR disk_usage_percent > 80 THEN 'WARNING'
+        ELSE 'HEALTHY'
+    END as status
+FROM server_metrics
+WHERE timestamp > NOW() - INTERVAL '24 hours';
+
+-- Función para limpiar datos antiguos
+CREATE OR REPLACE FUNCTION cleanup_old_metrics(days INT DEFAULT 30)
+RETURNS void AS $$
+BEGIN
+    DELETE FROM server_metrics WHERE timestamp < NOW() - INTERVAL '1 day' * days;
+END;
+$$ LANGUAGE plpgsql;

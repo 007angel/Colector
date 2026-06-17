@@ -1,0 +1,14 @@
+# 1. Instalar PostgreSQL
+sudo apt install postgresql postgresql-contrib
+
+# 2. Crear base de datos y usuario
+sudo -u postgres psql -c "CREATE DATABASE servmon;"
+sudo -u postgres psql -c "CREATE USER servmon WITH PASSWORD 'tu-password';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE servmon TO servmon;"
+
+# 3. Ejecutar schema SQL
+sudo -u postgres psql -d servmon -f schema.sql
+
+# 4. Instalar API Node.js
+npm install express pg
+node server.js

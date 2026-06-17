@@ -1,0 +1,24 @@
+[Unit]
+Description=ServMon Agent - Linux Server Monitoring
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/servmon/servmon.sh
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/servmon.log
+StandardError=append:/var/log/servmon.log
+PIDFile=/var/run/servmon.pid
+
+# Seguridad
+User=root
+Group=root
+NoNewPrivileges=false
+
+# Límites
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

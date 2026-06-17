@@ -1,0 +1,11 @@
+# 1. Descargar e instalar
+curl -O https://github.com/007angel/Monitor_server/blob/main/Colector/install.sh
+chmod +x servmon-install.sh
+sudo ./servmon-install.sh
+
+# 2. Configurar API (opcional durante instalación)
+# o editar: sudo nano /opt/servmon/config.ini
+
+# 3. Verificar estado
+sudo systemctl status servmon-agent
+sudo tail -f /var/log/servmon.log
